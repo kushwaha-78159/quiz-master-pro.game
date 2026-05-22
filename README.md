@@ -1038,3 +1038,6 @@ await createInvite.mutateAsync({ eventId: "123", origin: window.location.origin 
 // Backend - use input.origin to build the URL
 const inviteUrl = `${input.origin}/events/${eventId}/join?token=${token}`;
 ```
+
+public url any user vist my website
+https://quizmasterpro-heyzmxy4.manus.space
