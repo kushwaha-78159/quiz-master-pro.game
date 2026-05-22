@@ -12,13 +12,13 @@
 
 ## Backend - Authentication & Core
 - [x] Manus OAuth integration (pre-configured)
-- [ ] User profile endpoint with stats (coins, level, xp, character)
+- [x] User profile endpoint with stats (coins, level, xp, character)
 - [ ] User update endpoint for character selection
 
 ## Backend - Quiz Engine
 - [x] Quiz question retrieval by category and difficulty
 - [ ] Quiz session creation and management
-- [x] Answer submission and validation logic
+- [x] Answer submission and validation logic (server-side)
 - [x] Coin reward calculation based on correctness and difficulty
 - [x] XP gain logic and level-up detection
 - [ ] Quiz session completion and stats recording
@@ -30,7 +30,7 @@
 - [x] Character unlock eligibility check (coin-based)
 
 ## Backend - Character System
-- [x] Character unlock endpoint (spend coins)
+- [x] Character unlock endpoint (spend coins) with security validation
 - [x] Character list endpoint (all available + user-owned)
 - [ ] Character selection endpoint (set active character)
 - [x] Pre-seed 10+ unique cyberpunk characters
@@ -116,10 +116,10 @@
 - [x] Define XP rewards per difficulty
 
 ## Testing & Polish
-- [ ] Unit tests for coin/xp calculations
+- [x] Unit tests for coin/xp calculations and security
 - [ ] Integration tests for quiz flow
 - [ ] Real-time sync testing (chat, leaderboard, lobby)
-- [ ] Responsive design testing across devices
+- [x] Responsive design testing across devices
 - [ ] Performance testing with 50+ concurrent players
 - [ ] Bug fixes and UI polish
 

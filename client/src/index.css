@@ -49,11 +49,12 @@
   }
 
   * {
-    @apply border-border/50;
+    border-color: hsl(var(--border) / 0.5);
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: 'Space Mono', monospace;
   }
 
@@ -72,7 +73,7 @@
 @layer components {
   /* Cyberpunk neon glow text */
   .neon-glow {
-    @apply text-white;
+    color: white;
     text-shadow:
       0 0 10px hsl(var(--neon-pink)),
       0 0 20px hsl(var(--neon-pink)),
@@ -81,7 +82,7 @@
   }
 
   .neon-glow-cyan {
-    @apply text-white;
+    color: white;
     text-shadow:
       0 0 10px hsl(var(--neon-cyan)),
       0 0 20px hsl(var(--neon-cyan)),
@@ -90,7 +91,7 @@
   }
 
   .neon-glow-purple {
-    @apply text-white;
+    color: white;
     text-shadow:
       0 0 10px hsl(var(--neon-purple)),
       0 0 20px hsl(var(--neon-purple)),
@@ -128,12 +129,12 @@
 
   /* HUD border */
   .hud-border {
-    @apply border border-cyan-500;
+    border: 1px solid rgb(0, 255, 255);
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
   }
 
   .hud-border-pink {
-    @apply border border-pink-500;
+    border: 1px solid rgb(255, 0, 127);
     box-shadow: 0 0 10px rgba(255, 0, 127, 0.3), inset 0 0 10px rgba(255, 0, 127, 0.1);
   }
 
@@ -216,17 +217,39 @@
 
   /* Button styles */
   .btn-neon {
-    @apply px-6 py-3 font-bold uppercase tracking-wider transition-all duration-200;
-    @apply bg-transparent border-2 border-cyan-500 text-cyan-400;
-    @apply hover:bg-cyan-500 hover:text-black hover:shadow-lg;
+    padding: 0.75rem 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    background-color: transparent;
+    border: 2px solid rgb(0, 255, 255);
+    color: rgb(0, 255, 200);
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
   }
 
+  .btn-neon:hover {
+    background-color: rgb(0, 255, 255);
+    color: black;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+  }
+
   .btn-neon-pink {
-    @apply px-6 py-3 font-bold uppercase tracking-wider transition-all duration-200;
-    @apply bg-transparent border-2 border-pink-500 text-pink-400;
-    @apply hover:bg-pink-500 hover:text-black hover:shadow-lg;
+    padding: 0.75rem 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    background-color: transparent;
+    border: 2px solid rgb(255, 0, 127);
+    color: rgb(255, 100, 150);
     box-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+  }
+
+  .btn-neon-pink:hover {
+    background-color: rgb(255, 0, 127);
+    color: black;
+    box-shadow: 0 0 20px rgba(255, 0, 127, 0.6);
   }
 
   .btn-neon:active {
@@ -235,17 +258,36 @@
 
   /* Container */
   .container {
-    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 80rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
   }
 
   /* Flex defaults */
   .flex {
-    @apply min-w-0 min-h-0;
+    min-width: 0;
+    min-height: 0;
   }
 
   /* Button outline variant override */
   button[class*='outline'] {
-    @apply bg-transparent;
+    background-color: transparent;
   }
 }
 

@@ -39,17 +39,21 @@ export default function Characters() {
     }
   }, [userCharactersQuery.data]);
 
-  const handleUnlock = async (characterId: number, cost: number) => {
-    if (!user || user.coins < cost) {
-      alert("Not enough coins!");
+  const handleUnlock = async (characterId: number) => {
+    if (!user) {
+      alert("Please log in first");
       return;
     }
 
     setUnlockingId(characterId);
     try {
-      await unlockMutation.mutateAsync({ characterId });
-      setUserCharacterIds([...userCharacterIds, characterId]);
-      alert("Character unlocked!");
+      const result = await unlockMutation.mutateAsync({ characterId });
+      if (result.success) {
+        setUserCharacterIds([...userCharacterIds, characterId]);
+        alert("Character unlocked!");
+      } else {
+        alert(result.message || "Failed to unlock character");
+      }
     } catch (error) {
       console.error("Error unlocking character:", error);
       alert("Failed to unlock character");
@@ -134,11 +138,9 @@ export default function Characters() {
                     </Button>
                   ) : (
                     <Button
-                      onClick={() => handleUnlock(character.id, character.unlockCost)}
-                      disabled={!user || user.coins < character.unlockCost || unlockingId === character.id}
-                      className={`btn-neon-pink w-full ${
-                        !user || user.coins < character.unlockCost ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
+                      onClick={() => handleUnlock(character.id)}
+                      disabled={!user || unlockingId === character.id}
+                      className="btn-neon-pink w-full"
                     >
                       {unlockingId === character.id ? "UNLOCKING..." : "UNLOCK"}
                     </Button>

@@ -87,15 +87,19 @@ export default function Quiz() {
       setXpEarned(xpEarned + xpReward);
     }
 
-    // Submit to backend
-    await submitAnswerMutation.mutateAsync({
+    // Submit to backend for server-side validation
+    const result = await submitAnswerMutation.mutateAsync({
       questionId: currentQuestion.id,
       selectedAnswer: answer || "",
-      isCorrect,
-      coinsEarned: coinsReward,
-      xpEarned: xpReward,
-      score: isCorrect ? 1 : 0,
+      difficulty,
     });
+    
+    // Update local state based on server validation
+    if (result.isCorrect) {
+      setScore(score + 1);
+      setCoinsEarned(coinsEarned + result.coinsEarned);
+      setXpEarned(xpEarned + result.xpEarned);
+    }
 
     // Move to next question after delay
     setTimeout(() => {

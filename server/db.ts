@@ -179,3 +179,119 @@ export async function updatePlayerStats(userId: number, coinsEarned: number, xpE
     return false;
   }
 }
+
+// Server-side answer validation (prevents client-side cheating)
+export async function validateAndRewardAnswer(
+  userId: number,
+  questionId: number,
+  selectedAnswer: string,
+  difficulty: string
+): Promise<{ isCorrect: boolean; coinsEarned: number; xpEarned: number }> {
+  const db = await getDb();
+  if (!db) return { isCorrect: false, coinsEarned: 0, xpEarned: 0 };
+
+  try {
+    const question = await db
+      .select()
+      .from(questions)
+      .where(eq(questions.id, questionId))
+      .limit(1);
+
+    if (!question || question.length === 0) {
+      return { isCorrect: false, coinsEarned: 0, xpEarned: 0 };
+    }
+
+    const q = question[0];
+    const isCorrect = selectedAnswer === q.correctAnswer;
+
+    let coinsEarned = 0;
+    let xpEarned = 0;
+
+    if (isCorrect) {
+      if (difficulty === "easy") {
+        coinsEarned = 10;
+        xpEarned = 50;
+      } else if (difficulty === "medium") {
+        coinsEarned = 25;
+        xpEarned = 100;
+      } else if (difficulty === "hard") {
+        coinsEarned = 50;
+        xpEarned = 200;
+      } else if (difficulty === "expert") {
+        coinsEarned = 100;
+        xpEarned = 500;
+      }
+    }
+
+    return { isCorrect, coinsEarned, xpEarned };
+  } catch (error) {
+    console.error("[Database] Failed to validate answer:", error);
+    return { isCorrect: false, coinsEarned: 0, xpEarned: 0 };
+  }
+}
+
+// Secure character unlock with coin deduction
+export async function unlockCharacterSecure(
+  userId: number,
+  characterId: number
+): Promise<{ success: boolean; message: string }> {
+  const db = await getDb();
+  if (!db) return { success: false, message: "Database unavailable" };
+
+  try {
+    const user = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user || user.length === 0) {
+      return { success: false, message: "User not found" };
+    }
+
+    const character = await db
+      .select()
+      .from(characters)
+      .where(eq(characters.id, characterId))
+      .limit(1);
+
+    if (!character || character.length === 0) {
+      return { success: false, message: "Character not found" };
+    }
+
+    const cost = character[0].unlockCost;
+    if (user[0].coins < cost) {
+      return { success: false, message: "Insufficient coins" };
+    }
+
+    const alreadyOwned = await db
+      .select()
+      .from(playerCharacters)
+      .where(
+        and(
+          eq(playerCharacters.userId, userId),
+          eq(playerCharacters.characterId, characterId)
+        )
+      )
+      .limit(1);
+
+    if (alreadyOwned && alreadyOwned.length > 0) {
+      return { success: false, message: "Character already unlocked" };
+    }
+
+    await db.insert(playerCharacters).values({
+      userId,
+      characterId,
+    });
+
+    await db
+      .update(users)
+      .set({ coins: user[0].coins - cost })
+      .where(eq(users.id, userId));
+
+    return { success: true, message: "Character unlocked successfully" };
+  } catch (error) {
+    console.error("[Database] Failed to unlock character:", error);
+    return { success: false, message: "Failed to unlock character" };
+  }
+}
