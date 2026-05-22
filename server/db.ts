@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, characters, playerCharacters, questions, quizSessions, sessionParticipants } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,93 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Quiz queries
+export async function getQuestionsByCategory(category: string, difficulty: string, limit: number = 10) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(questions)
+    .where(and(eq(questions.category, category), eq(questions.difficulty, difficulty as any)))
+    .limit(limit);
+}
+
+// Character queries
+export async function getAllCharacters() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select().from(characters);
+}
+
+export async function getUserCharacters(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(playerCharacters)
+    .where(eq(playerCharacters.userId, userId));
+}
+
+export async function unlockCharacter(userId: number, characterId: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    await db.insert(playerCharacters).values({
+      userId,
+      characterId,
+    });
+    return true;
+  } catch (error) {
+    console.error("Error unlocking character:", error);
+    return false;
+  }
+}
+
+// Leaderboard queries
+export async function getLeaderboard(limit: number = 100) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(users)
+    .orderBy(desc(users.totalScore), desc(users.level), desc(users.coins))
+    .limit(limit);
+}
+
+// Player stats update
+export async function updatePlayerStats(userId: number, coinsEarned: number, xpEarned: number, score: number) {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (user.length === 0) return false;
+
+    const newCoins = user[0].coins + coinsEarned;
+    const newXp = user[0].xp + xpEarned;
+    const newLevel = Math.floor(newXp / 1000) + 1;
+    const newTotalScore = user[0].totalScore + score;
+    const newGamesPlayed = user[0].gamesPlayed + 1;
+
+    await db
+      .update(users)
+      .set({
+        coins: newCoins,
+        xp: newXp,
+        level: newLevel,
+        totalScore: newTotalScore,
+        gamesPlayed: newGamesPlayed,
+      })
+      .where(eq(users.id, userId));
+
+    return true;
+  } catch (error) {
+    console.error("Error updating player stats:", error);
+    return false;
+  }
+}
